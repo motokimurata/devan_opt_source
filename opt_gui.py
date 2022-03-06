@@ -3,6 +3,7 @@ from matplotlib.ticker import MultipleLocator
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import tkinter as tk
 import tkinter.ttk as ttk
+
 def quit_me(root_window):
         root_window.quit()
         root_window.destroy()
