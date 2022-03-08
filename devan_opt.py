@@ -11,23 +11,18 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from opt_gui import show_table
+from opt_gui import choice_file
+import csv_view
 
 def pulp_to_int(tgtlist):
     int_list = [int(str(tgtlist[i])) for i in range (len(tgtlist))]
     return int_list
 
-# ファイル選択ダイアログの表示
-root2 = tk.Tk()
-root2.withdraw()
-
-# ここの1行を変更　fTyp = [("","*")] →　fTyp = [("","*.csv")]
-fTyp = [("","*.csv")]
-curdir = os.getcwd()
-iDir = curdir
-file = tkinter.filedialog.askopenfilename(filetypes = fTyp ,initialdir = iDir)
-
-
-tbl1 = pd.read_csv(file) #csvの読み込み
+#opt_file = choice_file()
+#tbl1 = pd.read_csv(opt_file) #csvの読み込み
+opt_file = csv_view.CsvViewer()
+opt_file.start()
+tbl1 = pd.read_csv(opt_file.path) #csvの読み込み
 
 a = pd.to_datetime(tbl1['入港日'])
 b = pd.to_datetime(tbl1['希望納品日'])
