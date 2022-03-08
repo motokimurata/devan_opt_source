@@ -1,14 +1,31 @@
+import os
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import tkinter as tk
 import tkinter.ttk as ttk
+import tkinter.filedialog, tkinter.messagebox
 
-def quit_me(root_window):
+
+def choice_file():
+    # ファイル選択ダイアログの表示
+    root = tk.Tk()
+    root.withdraw()
+    # ここの1行を変更　fTyp = [("","*")] →　fTyp = [("","*.csv")]
+    fTitle = "最適化処理を行うCSVファイルを選択してください"
+    fTyp = [("","*.csv")]
+    curdir = os.getcwd()
+    iDir = curdir
+    file = tkinter.filedialog.askopenfilename(title = fTitle, filetypes = fTyp ,initialdir = iDir)
+    return file
+
+
+
+def quit_me(root_window): # tkinterセッション終了
         root_window.quit()
         root_window.destroy()
 
-def show_graph(before,after,intx_c,strdate_c):
+def show_graph(before,after,intx_c,strdate_c): # 最適化前（Before）と最適化後（After）の棒グラフを表示
     
     root = tk.Tk()
     root.protocol("WM_DELETE_WINDOW", lambda :quit_me(root))
@@ -41,14 +58,14 @@ def show_graph(before,after,intx_c,strdate_c):
     canvas = FigureCanvasTkAgg(fig, master=root)  # Generate canvas instance, Embedding fig in root
     canvas.draw()
     canvas.get_tk_widget().pack(side=tk.LEFT,fill=tk.BOTH)
-    canvas._tkcanvas.pack()
+    canvas._tkcanvas.pack() 
 
     # root
     root.update()
     root.deiconify()
     root.mainloop()
     
-def show_table(col0,col1,col2,intx,strday,before_l,after_l):
+def show_table(col0,col1,col2,intx,strday,before_l,after_l): # 最適化処理結果をテーブルで表示
         
     root = tk.Tk()
     root.protocol("WM_DELETE_WINDOW", lambda :quit_me(root))
@@ -73,10 +90,10 @@ def show_table(col0,col1,col2,intx,strday,before_l,after_l):
     for i in range(len(col0)):
         tree.insert("", "end", values=(col0[i], col1[i], col2[i]))
     
-    # 設置数数
+    # 設置数
     #button = tk.Button(root, text='Download_CSV', command= lambda :show_graph(before_l,after_l,intx,strday))
     #button.pack(side=tk.BOTTOM)
-    button2 = tk.Button(root, text='Show_Graph', command= lambda :show_graph(before_l,after_l,intx,strday))
+    button2 = ttk.Button(root, text='Show_Graph', command= lambda :show_graph(before_l,after_l,intx,strday))
     button2.pack(side=tk.BOTTOM)
     tree.pack(side=tk.LEFT,fill=tk.BOTH)
 
