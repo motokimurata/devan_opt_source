@@ -19,7 +19,9 @@ class CsvViewer:
         self.root = None  # ルートウィンドウ
         self.data = None  # 読み込まれたcsvファイルの内容
         self.tree = None  # csvファイルの内容を表示するttk.Treeviewテーブル
-        self.path = None
+        self.s_date = None  # 開始日
+        self.e_date = None  # 終了日
+        self.path = None  # csvのパス
 
     def start(self):
 
@@ -33,8 +35,8 @@ class CsvViewer:
         ルートウィンドウを呼び出す
         """
         self.root = tk.Tk()
-        self.root.geometry('500x500')
-        self.root.title('CsvViewer')
+        self.root.geometry('600x500')
+        self.root.title('SelectCsv')
 
     def call_csv_reader_widget(self):
         """
@@ -55,17 +57,15 @@ class CsvViewer:
         tk.Button(frame, text='...', command=lambda: self.set_path(entry_field)).pack(side=tk.LEFT)
 
         # CSVファイルを読み込み，Treeviewに内容を表示するボタンを作成
-        tk.Button(frame, text='read',
-                  #command=lambda: self.read_csv(entry_field.get(),  # entry_fieldに入力されているファイルパス
-                  command=lambda: self.read_csv( # entry_fieldに入力されているファイルパス
-                                                )).pack(side=tk.LEFT)
+        #tk.Button(frame, text='read',
+                  #command=lambda: self.read_csv( # entry_fieldに入力されているファイルパス
+                                                #)).pack(side=tk.LEFT)
         
         # CSVファイルのパスを戻り値として返し最適化処理を行うボタン
-        tk.Button(frame, text='optimize',
+        tk.Button(frame, text='Set File',
                   #command=lambda: self.send_csv(entry_field.get(), 
                   command=lambda: self.send_csv(  # entry_fieldに入力されているファイルパス
                                                 )).pack(side=tk.LEFT)
-
     def call_treeview_widget(self):
         """
         ttk.Treeviewを呼び出し，X軸Y軸のスクロールバーを追加する関数
@@ -105,11 +105,17 @@ class CsvViewer:
 
         # 初期ディレクトリを実行ファイルの絶対パスにしたファイルダイアログを呼び出す
         #file_path = filedialog.askopenfilename(initialdir=abs_path)
-        self.path = filedialog.askopenfilename(initialdir=abs_path)
+        self.path = filedialog.askopenfilename(
+            title = "予約表csvファイルを開く",
+            filetypes= [("CSV", ".csv")],
+            initialdir=abs_path
+            )
 
         # ファイルダイアログの選択結果をtk.Entryの内容に挿入する
         #entry_field.insert(tk.END, str(file_path))
         entry_field.insert(tk.END, str(self.path))
+        
+        self.read_csv()
         
     #def read_csv(self, path):
     def read_csv(self):
@@ -182,9 +188,7 @@ class CsvViewer:
         self.root.quit()
         self.root.destroy()
         
-    #def out_path(self,path):
     def out_path(self):
-        #return path
         return self.path   
        
 

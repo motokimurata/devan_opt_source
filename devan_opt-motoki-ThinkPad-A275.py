@@ -13,37 +13,16 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from opt_gui import show_table
 from opt_gui import choice_file
 import csv_view
-import calender_view
-
 
 def pulp_to_int(tgtlist):
     int_list = [int(str(tgtlist[i])) for i in range (len(tgtlist))]
     return int_list
 
-target_date = calender_view.TestTkcalender()
-target_date.start()
-date_filter_start = pd.to_datetime(target_date.s_date)
-date_filter_end = pd.to_datetime(target_date.e_date)
-
-
-
-warehouselist = ['NE1PL','NE1SS','NE1BR','NE2PL','NE2SS','NE2BR','NW1PL','NW1SS','NW1BR']
-target = warehouselist[0]
-
-
-
+#opt_file = choice_file()
+#tbl1 = pd.read_csv(opt_file) #csvの読み込み
 opt_file = csv_view.CsvViewer()
 opt_file.start()
-table3 = pd.read_csv(opt_file.path) #csvの読み込み
-
-opt_file = csv_view.CsvViewer()
-opt_file.start()
-table1 = pd.read_csv(opt_file.path) #csvの読み込み
-
-#table1.iloc[:,2] = pd.to_datetime(table3.iloc[:,0]).copy()
-tbl1 = table1[table1.iloc[:,2] == target]
-tbl1 = tbl1.reset_index(drop=True)
-#tbl1 = table1[target]
+tbl1 = pd.read_csv(opt_file.path) #csvの読み込み
 
 a = pd.to_datetime(tbl1['入港日'])
 b = pd.to_datetime(tbl1['希望納品日'])
@@ -67,10 +46,15 @@ before_list = [lpSum(tbl0[:,i]) for i in range(day)]
 tbl_2 = ~tbl2 #最小化問題のため、Trueで納品できたときは目的関数の計算で0になるようにする。~でFalseとTrueを裏返す。
 tbl_2 = tbl_2.astype(np.int) #0と1に戻す。
 
-table3.iloc[:,0] = pd.to_datetime(table3.iloc[:,0]).copy()
-table3 = table3[(table3.iloc[:,0] >= date_filter_start) & (table3.iloc[:,0] <= date_filter_end)]
-tbl3 = table3[target]
-tbl3 = tbl3.reset_index(drop=True)
+# 倉庫受入枠のテーブル。平日は5本/日、土日は0本/日とする。
+tbl3 = np.zeros(day)
+count = daymin
+for i in range(day):
+    if count.weekday() == 5 or count.weekday() == 6: #5が土曜、6が日曜
+        tbl3[i] = 0
+    else:
+        tbl3[i] = 5
+    count += td(days=1)
     
 tbl4 = tbl_2*10000
 for i in range(ctn):
@@ -122,8 +106,7 @@ for j in range(ctn):
 # 制約条件の式2
 # 1コンテナあたりの納品日を必ず1つ決める
 
-solver = COIN_CMD(threads=4, timeLimit=1800)
-m.solve(solver)
+m.solve()
 print('目的関数', value(m.objective))
 
 result = np.vectorize(value)(tbl5).astype(int).T #ソルバーの出力結果（日にち×コンテナ数で0-1が埋まっている）
