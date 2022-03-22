@@ -19,8 +19,6 @@ class CsvViewer:
         self.root = None  # ルートウィンドウ
         self.data = None  # 読み込まれたcsvファイルの内容
         self.tree = None  # csvファイルの内容を表示するttk.Treeviewテーブル
-        self.s_date = None  # 開始日
-        self.e_date = None  # 終了日
         self.path = None  # csvのパス
 
     def start(self):
@@ -54,13 +52,7 @@ class CsvViewer:
         entry_field.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
 
         # ファイルダイアログを呼び出すボタンを作成
-        tk.Button(frame, text='...', command=lambda: self.set_path(entry_field)).pack(side=tk.LEFT)
-
-        # CSVファイルを読み込み，Treeviewに内容を表示するボタンを作成
-        #tk.Button(frame, text='read',
-                  #command=lambda: self.read_csv( # entry_fieldに入力されているファイルパス
-                                                #)).pack(side=tk.LEFT)
-        
+        #tk.Button(frame, text='...', command=lambda: self.set_path(entry_field)).pack(side=tk.LEFT)
         # CSVファイルのパスを戻り値として返し最適化処理を行うボタン
         tk.Button(frame, text='Set File',
                   #command=lambda: self.send_csv(entry_field.get(), 
@@ -114,7 +106,7 @@ class CsvViewer:
         # ファイルダイアログの選択結果をtk.Entryの内容に挿入する
         #entry_field.insert(tk.END, str(file_path))
         entry_field.insert(tk.END, str(self.path))
-        
+        self.execute()
         self.read_csv()
         
     #def read_csv(self, path):
@@ -179,11 +171,13 @@ class CsvViewer:
             #self.out_path(path)
             self.out_path()
             self.quit_me()
-    
         # 拡張子がcsv以外の場合
         else:
             messagebox.showwarning('warning', 'Please select a csv file.')
-        
+    
+    def execute(self):
+        self.root.lift()
+    
     def quit_me(self): # tkinterセッション終了
         self.root.quit()
         self.root.destroy()
