@@ -52,7 +52,7 @@ class CsvViewer:
         entry_field.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
 
         # ファイルダイアログを呼び出すボタンを作成
-        #tk.Button(frame, text='...', command=lambda: self.set_path(entry_field)).pack(side=tk.LEFT)
+        tk.Button(frame, text='...', command=lambda: self.set_path(entry_field)).pack(side=tk.LEFT)
         # CSVファイルのパスを戻り値として返し最適化処理を行うボタン
         tk.Button(frame, text='Set File',
                   #command=lambda: self.send_csv(entry_field.get(), 
