@@ -15,15 +15,16 @@ from opt_gui import choice_file
 import csv_view
 import calender_view
 
-
 def pulp_to_int(tgtlist):
     int_list = [int(str(tgtlist[i])) for i in range (len(tgtlist))]
     return int_list
 
-target_date = calender_view.TestTkcalender()
-target_date.start()
-date_filter_start = pd.to_datetime(target_date.s_date)
-date_filter_end = pd.to_datetime(target_date.e_date)
+material = calender_view.TestTkcalender()
+material.start()
+date_filter_start = pd.to_datetime(material.s_date)
+date_filter_end = pd.to_datetime(material.e_date)
+table1 = pd.read_csv(material.booking_path)
+table3 = pd.read_csv(material.warehouse_path)
 
 
 
@@ -32,13 +33,13 @@ target = warehouselist[0]
 
 
 
-opt_file = csv_view.CsvViewer()
-opt_file.start()
-table3 = pd.read_csv(opt_file.path) #csvの読み込み
+#opt_file = csv_view.CsvViewer()
+#opt_file.start()
+#table3 = pd.read_csv(opt_file.path) #csvの読み込み
 
-opt_file = csv_view.CsvViewer()
-opt_file.start()
-table1 = pd.read_csv(opt_file.path) #csvの読み込み
+#opt_file = csv_view.CsvViewer()
+#opt_file.start()
+#table1 = pd.read_csv(opt_file.path) #csvの読み込み
 
 #table1.iloc[:,2] = pd.to_datetime(table3.iloc[:,0]).copy()
 tbl1 = table1[table1.iloc[:,2] == target]
