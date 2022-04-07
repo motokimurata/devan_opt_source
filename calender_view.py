@@ -25,7 +25,6 @@ class TestTkcalender:
         self.call_root_window()
         self.call_csv_widget()
         self.call_csv_reader_widget()
-        #self.call_csv_reader_widget()
         self.root.mainloop()
     
     def call_root_window(self):
@@ -86,7 +85,7 @@ class TestTkcalender:
         
         # widget配置のフレームを作成
         frame = tk.Frame(self.root, relief="ridge", bd=1)
-        frame.pack(fill=tk.BOTH, padx=5, pady=30)
+        frame.pack(fill=tk.BOTH, padx=5, pady=20)
 
         # ラベルを作成
         tk.Label(frame, text='Devan Booking file >>').pack(side=tk.LEFT)
@@ -100,13 +99,13 @@ class TestTkcalender:
 
         
         frame = tk.Frame(self.root, relief="ridge", bd=1)
-        frame.pack(fill=tk.BOTH, padx=5, pady=50)
+        frame.pack(fill=tk.BOTH, padx=5, pady=60)
 
         # ラベルを作成
         tk.Label(frame, text='Optimization >>').pack(side=tk.LEFT)
 
         # CSVファイルのパスを戻り値として返し最適化処理を行うボタン
-        tk.Button(frame, text='Go To',
+        tk.Button(frame, text='Go',
                   #command=lambda: self.send_csv(entry_field.get(), 
                   command=lambda: self.send_path(  # entry_fieldに入力されているファイルパス
                                                 )).pack(side=tk.LEFT)
