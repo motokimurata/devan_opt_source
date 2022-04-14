@@ -42,34 +42,51 @@ target = warehouselist[0]
 #table1 = pd.read_csv(opt_file.path) #csvの読み込み
 
 #table1.iloc[:,2] = pd.to_datetime(table3.iloc[:,0]).copy()
+# カレンダーの日付分でトリミング
+table1.iloc[:,4] = pd.to_datetime(table1.iloc[:,4]).copy()
+table1 = table1[(table1.iloc[:,4] >= date_filter_start) & (table1.iloc[:,4] <= date_filter_end)]
 tbl1 = table1[table1.iloc[:,2] == target]
 tbl1 = tbl1.reset_index(drop=True)
 #tbl1 = table1[target]
 
 a = pd.to_datetime(tbl1['入港日'])
 b = pd.to_datetime(tbl1['希望納品日'])
+c = pd.to_datetime(tbl1['最適納品日'])
+d = tbl1['確定/情報']
 daymin = a.min()+ td(days=1) #すべてのコンテナの入港日のうち一番若い日付+1日を取得
 daymax = b.max()  #すべてのコンテナの希望納品日のうち一番先の日付を取得
-day = (daymax - daymin).days + 1 #日数
+day = (daymax - daymin).days + 11 #日数
 daylist =[daymin.date() + td(days = i) for i in range(day)] 
 # 今回のサンプルはdaymin=1/27、daymax=2/15なので1/27-2/15の日付リストを作成する。
 ctn = len(tbl1) #コンテナ数
 tbl0 = np.zeros(ctn*day).reshape(ctn,day)
 tbl2 = np.zeros(ctn*day).reshape(ctn,day)
+tbl7 = np.zeros(ctn*day).reshape(ctn,day)
 for i in range(ctn):
     wnt = (b[i]-daymin).days
     pod = (a[i]-daymin).days
     tbl0[i,wnt]=1 # 納品希望日を1にする
     tbl2[i,pod+1:wnt]=1 # 入港日+1日～納品希望日まで1にする。
+    if d[i] == '確定':
+        prev_rslt = (c[i]-daymin).days
+        tbl7[i,prev_rslt]=1 # 前回の最適納品日を1にする
+    else:
+        tbl7[i,:]=1 
+
 tbl0 = tbl0.astype(np.bool).copy() #希望日付を1に変更
 tbl2 = tbl2.astype(np.bool).copy() #希望日付を1に変更
+tbl7 = tbl7.astype(np.bool).copy() #前回納品日を1に変更
 before_list = [lpSum(tbl0[:,i]) for i in range(day)]
 
 tbl_2 = ~tbl2 #最小化問題のため、Trueで納品できたときは目的関数の計算で0になるようにする。~でFalseとTrueを裏返す。
 tbl_2 = tbl_2.astype(np.int) #0と1に戻す。
 
+tbl_7 = ~tbl7 #最小化問題のため、Trueで納品できたときは目的関数の計算で0になるようにする。~でFalseとTrueを裏返す。
+tbl_7 = tbl_7.astype(np.int) #0と1に戻す。
+
+# カレンダーの日付分でトリミング
 table3.iloc[:,0] = pd.to_datetime(table3.iloc[:,0]).copy()
-table3 = table3[(table3.iloc[:,0] >= date_filter_start) & (table3.iloc[:,0] <= date_filter_end)]
+table3 = table3[(table3.iloc[:,0] >= date_filter_start) & (table3.iloc[:,0] <= date_filter_end+td(days=10))]
 tbl3 = table3[target]
 tbl3 = tbl3.reset_index(drop=True)
     
@@ -93,15 +110,17 @@ tbl6 = addvars(day) # 納品オーバーを計算し入れるための変数（�
 tbl_2 = tbl_2.T.tolist() #目的関数作成用に変換
 tbl3 = tbl3.T.tolist()
 tbl4 = tbl4.T.tolist()
+tbl_7 = tbl_7.T.tolist()
 
 Cwhs = 100 #受入枠を超えたときのペナルティ
-Cnwnt = 10 #納品希望日以外のペナルティ(この定数とtbl4の内積がペナルティ)
+Cnwnt = 10 #納品希望日以外のペナルティ(この定数とtbl5の内積がペナルティ)
 Clt = 1 #リードタイムが1日増えると1点ペナルティ。LT重みは1のため不要だが、今後の修正のために残す。
 
 m = LpProblem(sense=LpMinimize) #最小化問題の宣言
 m += (Cwhs * lpSum(tbl6)
     + Cnwnt * lpDot(tbl_2,tbl5)
-    + Clt * lpDot(tbl4,tbl5))
+    + Clt * lpDot(tbl4,tbl5)
+    +Cnwnt * lpDot(tbl_7,tbl5))
 # 目的関数の式
 # 1行目は納品制限本数を超過した本数当たり、納品オーバー分のペナルティ
 # 2行目は納品可能日ではない日に納品した本数あたり、希望不可分のペナルティ
